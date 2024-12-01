@@ -62,7 +62,7 @@ zdotfin = 0.005;
 % zdotfin = 0.05;
 
 
-bc = [xini; xdotini; yini; ydotini; zini; zdotini; xfin; xdotfin; yfin; ydotfin; zfin; zdotfin];
+bc = [];
 
 
 Txmin = -0.3;
@@ -99,24 +99,6 @@ A = []; B = []; Aeq = []; Beq = [];
 %% initial guess for decision vector - [X(0)...X(N) Y(0)...Y(N) Z(0)...Z(N) 
 % Xdot(0)...X(N) Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]
-load("guess.mat");
-%load("position_lvlh.mat");
-Pos = resample(Position, tau);
-xguess = Pos.Data(:, 1);
-yguess = Pos.Data(:, 2);
-zguess = Pos.Data(:, 3);
-
-%load("velocity_lvlh.mat");
-Vel = resample(Velocity, tau);
-xdotguess = Vel.Data(:, 1);
-ydotguess = Vel.Data(:, 2);
-zdotguess = Vel.Data(:, 3);
-
-%load('thrust_pid_lvlh.mat');
-Th = resample(Thrust, tau);
-Txguess = Th.Data(:, 1);
-Tyguess = Th.Data(:, 2);
-Tzguess = Th.Data(:, 3);
 
 DV0 = awgn([xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess],650);
 %DV0 = [xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess];
