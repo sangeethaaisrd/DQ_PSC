@@ -18,51 +18,65 @@ addpath("RK/","dq_fcn/")
 %% initial conds and final conds and bounds
 tau0 = 0;
 tau_f = 650; %10 minutes
-omega = 0.0012; % orbital velocity in rad/s 
+w_x_ini = 0;
+w_y_ini = 0;
+w_z_ini = 0.0012; % orbital velocity in rad/s 
+v_x_ini = 0.0;
+v_y_ini = 0.0;
+v_z_ini = 0.1;
 mc = 20;
 alpha = pi/3;   %FOV
 
 %initial condition 
 
+w_b_i_b = [w_x_ini w_y_ini w_z_ini];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+v_b_i_b = [v_x_ini v_y_ini v_z_ini];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+w_q_b_i_b = quaternion(0,w_b_i_b);
+v_q_b_i_b = quaternion(0,v_b_i_b);
+w_dq_b_i_b = dualquaternion(w_q_b_i_b,v_q_b_i_b);
+
  
 q_b_i = quaternion(1,[0 0 0]); % initial quaternion of body frame w.r.t inertial frame
-q_b_i_conj = conj(q__i);
+q_b_i_conj = conj(q_b_i);
 
 q_dq_b_i = dualquaternion();
 q_dq_b_i.qr = q_b_i; 
 r_b = quaternion();
 q_dq_b_i.qd =  0.5*q_dq_b_i.qr*r_b; % rotation first followed by translation
 
-xini = 0.0;
-xfin = 0.0;
-yini = 0.0;
-yfin = 0.0;
-zini = 0.0;
-zfin = 0.0;
+w_dq_b_i_b_dot =dualquaternion();
+q_dq_b_i_dot = dualquaternion();
 
-xdotini = 0.0;
-xdotfin = 0.005;
-ydotini = 0.0;
-ydotfin = 0.005;
-zdotini = 0.0;
-zdotfin = 0.005;
+%final condition
 
-% xini = 0.05;
-% xfin = 0.02;
-% yini = 0.05;
-% yfin = 0.05;
-% zini = -10.05;
-% zfin = -0.1;
-% 
-% xdotini = 0.0;
-% xdotfin = 0.015;
-% ydotini = 0.0;
-% ydotfin = 0.005;
-% zdotini = 0.0;
-% zdotfin = 0.05;
+w_x_fin = 0;
+w_y_fin = 0;
+w_z_fin = 0.0012; % orbital velocity in rad/s 
+v_x_fin = 0.0;
+v_y_fin = 0.0;
+v_z_fin = 0.1;
 
+w_b_i_b_fin = [w_x_fin  w_y_fin  w_z_fin ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+v_b_i_b_fin = [v_x_fin  v_y_fin  v_z_fin ];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+w_q_b_i_b_fin = quaternion(0,w_b_i_b_fin);
+v_q_b_i_b_fin = quaternion(0,v_b_i_b_fin);
+w_dq_b_i_b_fin = dualquaternion(w_q_b_i_b_fin,v_q_b_i_b_fin);
 
-bc = [];
+ 
+q_b_i_fin = quaternion(1,[0 0 0]); % initial quaternion of body frame w.r.t inertial frame
+q_b_i_conj_fin = conj(q_b_i_fin);
+
+q_dq_b_i_fin = dualquaternion();
+q_dq_b_i_fin.qr = q_b_i_fin; 
+r_b_fin = quaternion(1,[0 0 10]);% final translation distance along z axis is 10m
+q_dq_b_i_fin.qd =  0.5*q_dq_b_i_fin.qr*r_b_fin; % rotation first followed by translation
+
+w_dq_b_i_b_dot_fin =dualquaternion();
+q_dq_b_i_dot_fin = dualquaternion();
+
+% boundary condition
+
+bc = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'  w_dq_b_i_b_fin.qr.s  (w_dq_b_i_b_fin.qr.v)' w_dq_b_i_b_fin.qd.s (w_dq_b_i_b_fin.qd.v)' q_dq_b_i_fin.qr.s  (q_dq_b_i_fin.qr.v)' q_dq_b_i_fin.qd.s (q_dq_b_i_fin.qd.v)' w_dq_b_i_b_dot.qr.s  (w_dq_b_i_b_dot.qr.v)' w_dq_b_i_b_dot.qd.s (w_dq_b_i_b_dot.qd.v)' q_dq_b_i_dot.qr.s  (q_dq_b_i_dot.qr.v)' q_dq_b_i_dot.qd.s (q_dq_b_i_dot.qd.v)'  w_dq_b_i_b_dot_fin.qr.s  (w_dq_b_i_b_dot_fin.qr.v)' w_dq_b_i_b_dot_fin.qd.s (w_dq_b_i_b_dot_fin.qd.v)' q_dq_b_i_dot_fin.qr.s  (q_dq_b_i_dot_fin.qr.v)' q_dq_b_i_dot_fin.qd.s (q_dq_b_i_fin_dot.qd.v)'];
 
 
 Txmin = -0.3;
