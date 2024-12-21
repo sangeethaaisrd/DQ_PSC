@@ -164,6 +164,9 @@ ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1);  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1);  
 A = []; B = []; Aeq = []; Beq = [];
 % TODO : Here introdcue the constraint - norm of real quaternion =1 . qd.qr = 0
 
+%% Decision Vector 
+DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'];
+
 %% initial guess for decision vector - [qr_0(0)...qr_0(N) qr_1(0)...qr_1(N) qr_2(0)...qr_2(N)...qr_3(0)...qr_3(N) 
 % qd_0(0)     ...... Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
