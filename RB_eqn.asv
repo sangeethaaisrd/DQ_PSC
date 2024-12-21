@@ -1,0 +1,12 @@
+%% Function to get the spacecraft equation in DQ form 
+function[result] = RB_eqn (w_dq_b_i_dot,w_dq_b_i,J_dq,F)
+
+
+A = cross((w_dq_b_a_b+w_dq_a_i_b),J_dq*(w_dq_b_a_b+w_dq_a_i_b));
+B = cross(w_dq_a_i_b,w_dq_b_a_b);
+%C = cross(w_dq_a_i_b,R_dq);
+%D = cross(w_dq_a_i_b,C);
+%E = cross(w_dq_a_i_b_dot,R_dq);
+%result = inv(J_dq)*(F - A -J_dq*B-J_dq*D-J_dq*w_dq_a_i_b_dot-J_dq*E);
+result = inv(J_dq)*(F - A -J_dq*B-J_dq*w_dq_a_i_b_dot);
+end
