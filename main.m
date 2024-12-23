@@ -155,7 +155,7 @@ w = flip(cc_quad_weights(N));
 tk = flip(tk);
 tau = ((tau_f-tau0).*tk+(tau_f+tau0))./2;
 
-%% TODO:bounds
+%% bounds
 
 lb = [w_dq_b_i_b_min.qr.s.*ones(N+1, 1);  (w_dq_b_i_b_min.qr.v)'.*ones(N+1, 1);  w_dq_b_i_b_min.qd.s*ones(N+1, 1); (w_dq_b_i_b_min.qd.v)'.*ones(N+1, 1);  q_dq_b_i_min.qr.s*ones(N+1, 1);  (q_dq_b_i_min.qr.v)'.*ones(N+1, 1);  q_dq_b_i_min.qd.s*ones(N+1, 1); (q_dq_b_i_min.qd.v)'.*ones(N+1, 1); ];
 ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1);  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1);  w_dq_b_i_b_max.qd.s*ones(N+1, 1); (w_dq_b_i_b_max.qd.v)'.*ones(N+1, 1);  q_dq_b_i_max.qr.s*ones(N+1, 1);  (q_dq_b_i_max.qr.v)'.*ones(N+1, 1);  q_dq_b_i_max.qd.s*ones(N+1, 1); (q_dq_b_i_max.qd.v)'.*ones(N+1, 1); ];
@@ -181,6 +181,6 @@ options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
 
 [DV, costval, exitflag, output] = fmincon(@(DV)costfunc(DV, w, tau0, tau_f), DV0, A, B,...
     Aeq, Beq, lb, ub, @(DV)nonlcon(DV, D, bc, w, tau0, tau_f, omega, mc, alpha),options);
-
+aaaa
 exitflag
 output
