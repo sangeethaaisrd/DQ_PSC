@@ -170,8 +170,8 @@ DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_d
 %% initial guess for decision vector - [qr_0(0)...qr_0(N) qr_1(0)...qr_1(N) qr_2(0)...qr_2(N)...qr_3(0)...qr_3(N) 
 % qd_0(0)     ...... Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
-
-DV0 = awgn([xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess],650);
+%% TO DO : initial guess - 16xN
+DV0 = awgn([],650);
 %DV0 = [xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess];
 
 %% Optimization options
@@ -181,6 +181,6 @@ options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
 
 [DV, costval, exitflag, output] = fmincon(@(DV)costfunc(DV, w, tau0, tau_f), DV0, A, B,...
     Aeq, Beq, lb, ub, @(DV)nonlcon(DV, D, bc, w, tau0, tau_f, omega, mc, alpha),options);
-aaaa
+
 exitflag
 output

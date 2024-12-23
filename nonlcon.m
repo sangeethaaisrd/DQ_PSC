@@ -1,4 +1,4 @@
-%% 6DOF rigid body dynamics equation in DQ form 
+%% 6DOF rigid body dynamics equation in DQ form - constraint 
 function[c,ceq] = nonlcon(DV,J_dq,F)
 
 
