@@ -164,13 +164,20 @@ ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1);  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1);  
 A = []; B = []; Aeq = []; Beq = [];
 % TODO : Here introdcue the constraint - norm of real quaternion =1 . qd.qr = 0
 
+%% Wrench in DQ form 
+F = [F_x  F_y  F_z ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+T = [T_x  T_y  T_z];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+F_q = quaternion(0,F);
+T_q = quaternion(0,T);
+F_dq = dualquaternion(F_q,T_q);
+
 %% Decision Vector 
-DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'];
+DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)' F T];
 
 %% initial guess for decision vector - [qr_0(0)...qr_0(N) qr_1(0)...qr_1(N) qr_2(0)...qr_2(N)...qr_3(0)...qr_3(N) 
 % qd_0(0)     ...... Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
-%% TO DO : initial guess - 16xN
+%% TO DO : initial guess - 22xN
 DV0 = awgn([],650);
 %DV0 = [xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess];
 

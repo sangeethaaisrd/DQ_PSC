@@ -2,7 +2,7 @@
 function[c,ceq] = nonlcon(DV,J_dq,F)
 
 
-N = (length(DV)-16)/16; % in this case N =100 
+N = (length(DV)-22)/22; % in this case N =100 
 
 w_dq_b_i_b.qr.s = DV(1:N+1);
 w_dq_b_i_b.qr.v(1,:) = DV(N+2:2*N+2);
