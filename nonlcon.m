@@ -40,6 +40,7 @@ q_dq_b_i_dot_con = (2/(tau_f-tau0)).*(D*q_dq_b_i-0.5*q_dq_b_i*w_dq_b_i_b);
 w_dq_b_i_b_dot_con = (2/(tau_f-tau0)).*(D*w_dq_b_i_b - inv(J_dq)*(F - A));
 
 
-ceq = [q_dq_b_i_dot_con.qr.s;(w_dq_b_i_b_dot_con.qr.v)';q_dq_b_i_dot_con.qd.s,(w_dq_b_i_b_dot_con.qd.v)',w_dq_b_i_b.qr.s(1,1)-bc(1);w_dq_b_i_b.qr.v(1,1)-bc(2);w_dq_b_i_b.qr.v(2,1)-bc(3);w_dq_b_i_b.qr.v(3,1)-bc(4);q_dq_b_i.qr.s(1,1)-bc(5);q_dq_b_i.qr.v(1,1)-bc(6);q_dq_b_i.qr.v(2,1)-bc(7);q_dq_b_i.qr.v(3,1)-bc(8)];
+
+ceq = [q_dq_b_i_dot_con.qr.s;(w_dq_b_i_b_dot_con.qr.v)';q_dq_b_i_dot_con.qd.s,(w_dq_b_i_b_dot_con.qd.v)',w_dq_b_i_b.qr.s(1,1)-bc(1);w_dq_b_i_b.qr.v(1,1)-bc(2);w_dq_b_i_b.qr.v(2,1)-bc(3);w_dq_b_i_b.qr.v(3,1)-bc(4);q_dq_b_i.qr.s(1,1)-bc(5);q_dq_b_i.qr.v(1,1)-bc(6);q_dq_b_i.qr.v(2,1)-bc(7);q_dq_b_i.qr.v(3,1)-bc(8);norm(q_dq_b_i_dot_con.qr)-1; norm(w_dq_b_i_b_dot_con)-1;dot(q_dq_b_i_dot_con.qr,q_dq_b_i_dot_con.qd),dot(w_dq_b_i_b_dot_con.qr,w_dq_b_i_b_dot_con.qd)];
 c = [w_dq_b_i_b.qr.s(1,end)-bc(9); w_dq_b_i_b.qr.v(1,end)-bc(10);w_dq_b_i_b.qr.v(2,end)-bc(11);w_dq_b_i_b.qr.v(3,end)-bc(12);w_dq_b_i_b.qd.s(1,end)-bc(13);w_dq_b_i_b.qd.v(1,end)-bc(14);w_dq_b_i_b.qd.v(2,end)-bc(15);w_dq_b_i_b.qd.v(3,end)-bc(16)];
 end

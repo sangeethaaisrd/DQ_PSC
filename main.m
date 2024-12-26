@@ -128,7 +128,7 @@ q_dq_b_i_max.qr = q_b_i_max;
 r_b_max = quaternion(1,[0 0 0]);% final translation distance along z axis is 10m
 q_dq_b_i_max.qd =  0.5*q_dq_b_i_max.qr*r_b_max; % rotation first followed by translation
 
-
+%% min and max of effort values 
 
 
 Txmin = -0.3;
@@ -157,14 +157,21 @@ tau = ((tau_f-tau0).*tk+(tau_f+tau0))./2;
 
 %% bounds
 
-lb = [w_dq_b_i_b_min.qr.s.*ones(N+1, 1);  (w_dq_b_i_b_min.qr.v)'.*ones(N+1, 1);  w_dq_b_i_b_min.qd.s*ones(N+1, 1); (w_dq_b_i_b_min.qd.v)'.*ones(N+1, 1);  q_dq_b_i_min.qr.s*ones(N+1, 1);  (q_dq_b_i_min.qr.v)'.*ones(N+1, 1);  q_dq_b_i_min.qd.s*ones(N+1, 1); (q_dq_b_i_min.qd.v)'.*ones(N+1, 1); ];
-ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1);  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1);  w_dq_b_i_b_max.qd.s*ones(N+1, 1); (w_dq_b_i_b_max.qd.v)'.*ones(N+1, 1);  q_dq_b_i_max.qr.s*ones(N+1, 1);  (q_dq_b_i_max.qr.v)'.*ones(N+1, 1);  q_dq_b_i_max.qd.s*ones(N+1, 1); (q_dq_b_i_max.qd.v)'.*ones(N+1, 1); ];
+lb = [w_dq_b_i_b_min.qr.s.*ones(N+1, 1)  (w_dq_b_i_b_min.qr.v)'.*ones(N+1, 1)  w_dq_b_i_b_min.qd.s*ones(N+1, 1) (w_dq_b_i_b_min.qd.v)'.*ones(N+1, 1)  q_dq_b_i_min.qr.s*ones(N+1, 1)  (q_dq_b_i_min.qr.v)'.*ones(N+1, 1)  q_dq_b_i_min.qd.s*ones(N+1, 1) (q_dq_b_i_min.qd.v)'.*ones(N+1, 1) ];
+ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1)  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1)  w_dq_b_i_b_max.qd.s*ones(N+1, 1) (w_dq_b_i_b_max.qd.v)'.*ones(N+1, 1)  q_dq_b_i_max.qr.s*ones(N+1, 1)  (q_dq_b_i_max.qr.v)'.*ones(N+1, 1)  q_dq_b_i_max.qd.s*ones(N+1, 1) (q_dq_b_i_max.qd.v)'.*ones(N+1, 1) ];
 
 %% equality constraints and linear constraints
 A = []; B = []; Aeq = []; Beq = [];
-% TODO : Here introdcue the constraint - norm of real quaternion =1 . qd.qr = 0
+
 
 %% Wrench in DQ form 
+F_x = 0;
+F_y = 0;
+F_z = 0;
+T_x = 0;
+T_y = 0;
+T_z = 0;
+
 F = [F_x  F_y  F_z ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 T = [T_x  T_y  T_z];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 F_q = quaternion(0,F);
