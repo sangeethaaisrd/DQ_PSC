@@ -136,7 +136,34 @@ classdef dualquaternion
 
     function r_a= ra_from_dq(dq)
         r_a = 2*dq.qd*conj(dq.qr);
-    end    
+    end   
+
+    function [theta,d,I,m] = con_2_screw(dq1)
+        % converting to screw parameters 
+        theta = 2*acos(dq1.qr.s);
+        d = -2 * dq1.qd.s *(1/sqrt(dot(dq1.qr.v,dq1.qr.v)));
+        I = dq1.qr.v*(1/sqrt(dot(dq1.qr.v,dq1.qr.v)));
+        m = (dq1.qd.v - 0.5*I*d*dq1.qr.s)*(1/sqrt(dot(dq1.qr.v,dq1.qr.v)));
+    end 
+
+
+    function pow_dq = pow_fcn(dq1,n)
+      [theta,d,I,m] =  con_2_screw(dq1); 
+      s1 = cos(0.5*n*theta);
+      v1 = I*sin(0.5*n*theta);
+      s2 = -0.5*n*d*sin(0.5*n*theta);
+      v2 = sin(0.5*n*theta)*m+ 0.5*n*d*cos(0.5*n*theta)*I;
+      qr =quaternion(s1,v1);
+      qd = quaternion(s2,v2);
+      pow_dq = dualquaternion(qr,qd);
+
+    end 
+
+    function interp_dq= sclerp_dq(t,dq1,dq2)
+        interp_mag = conj(dq1)*(dq2);
+        interp_dq = dq1*pow_fcn(interp_mag,t)
+    end  
+
 
   end
 

@@ -63,13 +63,17 @@ v_q_b_i_b_fin = quaternion(0,v_b_i_b_fin);
 w_dq_b_i_b_fin = dualquaternion(w_q_b_i_b_fin,v_q_b_i_b_fin);
 
  
-q_b_i_fin = quaternion(1,[0 0 0]); % final quaternion of body frame w.r.t inertial frame
+q_b_i_fin = normalize(quaternion(1,[2 3 4])); % final quaternion of body frame w.r.t inertial frame
 q_b_i_conj_fin = conj(q_b_i_fin);
 
 q_dq_b_i_fin = dualquaternion();
 q_dq_b_i_fin.qr = q_b_i_fin; 
-r_b_fin = quaternion(1,[0 0 10]);% final translation distance along z axis is 10m
+r_b_fin = quaternion(0,[0 0 10]);% final translation distance along z axis is 10m
 q_dq_b_i_fin.qd =  0.5*q_dq_b_i_fin.qr*r_b_fin; % rotation first followed by translation
+
+%dq_interp =sclerp_dq(0.1,q_dq_b_i,q_dq_b_i_fin)
+
+%A = dot (q_dq_b_i_fin.qr,q_dq_b_i_fin.qd)
 
 w_dq_b_i_b_dot_fin =dualquaternion();
 q_dq_b_i_dot_fin = dualquaternion();
