@@ -138,8 +138,8 @@ classdef dualquaternion
         r_a = 2*dq.qd*conj(dq.qr);
     end   
 
-    function [theta,d,I,m] = con_2_screw(dq1)
-        % converting to screw parameters 
+    function [theta,d,I,m] = con_2_screw(dq1)  % converting DQ to screw parameters
+       
         theta = 2*acos(dq1.qr.s);
         d = -2 * dq1.qd.s *(1/sqrt(dot(dq1.qr.v,dq1.qr.v)));
         I = dq1.qr.v*(1/sqrt(dot(dq1.qr.v,dq1.qr.v)));
@@ -147,7 +147,8 @@ classdef dualquaternion
     end 
 
 
-    function pow_dq = pow_fcn(dq1,n)
+    function pow_dq = pow_fcn(dq1,n) % converting to DQ from screw . n is the power.
+        % for n =1, direct conversion from screw to DQ
       [theta,d,I,m] =  con_2_screw(dq1); 
       s1 = cos(0.5*n*theta);
       v1 = I*sin(0.5*n*theta);

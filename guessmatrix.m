@@ -63,7 +63,8 @@ i=1;
 for t =0:0.01:1
 
 dq_interp(i) =sclerp_dq(t,q_dq_b_i,q_dq_b_i_fin)
-A(i) = dot(dq_interp(i).qr,dq_interp(i).qd)
+A(i) = dot(dq_interp(i).qr,dq_interp(i).qd)% ensured that dot product of real and dual part of DQ is zero.
+norm_qr(i) = norm(dq_interp(i).qr) % ensured that norm of real quaternion = 1 
 i=i+1;
 
 end
