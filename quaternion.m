@@ -126,6 +126,21 @@ classdef quaternion
     function q_out = normalize(q)
         q_out = q/norm(q);
     end
+
+    function q_interp = quat_interp(q1,q2,t)
+
+        q1 = normalize(q1);
+ 
+        q2 = normalize(q2);
+
+
+        q_1 = [q1.s q1.v(1) q1.v(2) q1.v(3)];
+        q_2 = [q2.s q2.v(1) q2.v(2) q2.v(3)];
+        q_3 = quatinterp(q_1,q_2,t);
+        q_interp  =quaternion(q_3(1),[q_3(2),q_3(3),q_3(4)]);
+
+        
+    end    
     
   end
   

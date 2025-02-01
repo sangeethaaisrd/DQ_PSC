@@ -37,12 +37,12 @@ q_dq_b_i_dot = dualquaternion();
 
 %final condition
 
-w_x_fin = 0;
+w_x_fin = 0.001;
 w_y_fin = 0;
 w_z_fin = 0.0012; % orbital velocity in rad/s 
 v_x_fin = 0.0;
 v_y_fin = 0.0;
-v_z_fin = 0.1;
+v_z_fin = 0.0001;
 
 w_b_i_b_fin = [w_x_fin  w_y_fin  w_z_fin ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 v_b_i_b_fin = [v_x_fin  v_y_fin  v_z_fin ];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -59,12 +59,23 @@ q_dq_b_i_fin.qr = q_b_i_fin;
 r_b_fin = quaternion(0,[0 0 10]);% final translation distance along z axis is 10m
 q_dq_b_i_fin.qd =  0.5*q_dq_b_i_fin.qr*r_b_fin; % rotation first followed by translation
 
+w_q_b_i_b = quaternion(1,[2 3 4]);
+w_q_b_i_b_fin = quaternion(5,[6 7 8]);
+
 i=1;
+%%
 for t =0:0.01:1
 
-dq_interp(i) =sclerp_dq(t,q_dq_b_i,q_dq_b_i_fin)
-A(i) = dot(dq_interp(i).qr,dq_interp(i).qd)% ensured that dot product of real and dual part of DQ is zero.
-norm_qr(i) = norm(dq_interp(i).qr) % ensured that norm of real quaternion = 1 
+q_dq_b_i_guess(i,1) = dqinterp(t,q_dq_b_i,q_dq_b_i_fin);
+% A(i) = dot(dq_interp(i).qr,dq_interp(i).qd)% ensured that dot product of real and dual part of DQ is zero.
+% norm_qr(i) = norm(dq_interp(i).qr) % ensured that norm of real quaternion = 1 
+
+w_q_b_i_b_guess(i,1)= quat_interp(w_q_b_i_b,w_q_b_i_b_fin,t);
+v_q_b_i_b_guess(i,1) = quat_interp(v_q_b_i_b,v_q_b_i_b_fin,t);
+
+%F
+%T
+
 i=i+1;
 
 end

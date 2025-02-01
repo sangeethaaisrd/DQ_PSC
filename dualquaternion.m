@@ -82,7 +82,7 @@ classdef dualquaternion
      end
     end
 
-     function dq_out = cross(dq1, dq2)
+    function dq_out = cross(dq1, dq2)
       % Dual quaternion multiplication
       dq_out = dualquaternion();
       dq_out.qr =  cross(dq1.qr,dq2.qr);
@@ -124,7 +124,7 @@ classdef dualquaternion
           dq2 = dualquaternion(quaternion(dq2,[0 0 0]),quaternion());
       end
       dq_out = dq1*inv(dq2);
-    end    
+     end    
     
     function dq_vec = dq2vec(dq)
         dq_vec = [dq.qr.s; dq.qr.v; dq.qd.s; dq.qd.v];
@@ -160,12 +160,69 @@ classdef dualquaternion
 
     end 
 
-    function interp_dq= sclerp_dq(t,dq1,dq2)
+    function interp_dq= dqinterp(t,dq1,dq2)
         interp_mag = conj(dq1)*(dq2);
-        interp_dq = dq1*pow_fcn(interp_mag,t)
-    end  
+        interp_dq = dq1*pow_fcn(interp_mag,t);
+    end 
 
 
+    function dq_pdt_elementwise= times(dq1,dq2)
+         s1 = size(dq1);
+         s2 = size(dq2);
+        
+        if s1(2) == s2(2)
+
+                for i = 1:1:s1(2)                    
+                    dq_pdt_elementwise(1,i) = dq1(1,i)*dq2(1,i);
+                end                
+        elseif s1(1)==8 
+                 for i = 1:1:s2(2)
+                     dq_pdt_elementwise(1,i) = dq1*dq2(1,i);
+                 end
+
+        else 
+
+                error('dimensions must match!');
+        end
+    end 
+
+
+    function dq_cross_elementwise= cross_times(dq1,dq2)
+         s1 = size(dq1);
+         s2 = size(dq2);
+        
+        if s1(2) == s2(2)
+
+                for i = 1:1:s1(2)                    
+                    dq_cross_elementwise(1,i) = dq1(1,i)*dq2(1,i);
+                end                
+        else 
+
+                error('dimensions must match!');
+        end
+
+   
+    end
+
+
+    function dq_out = minus_times(dq1,dq2)
+      % Quaternion subtraction
+        
+        s1 = size(dq1);
+        s2 = size(dq2);
+
+        if size(s1) == size(s2)
+
+                for i = 1:1:s1(2) 
+                    dq_out(1,i) = dq1(1,i)-dq2(1,i);
+                end                
+        else 
+
+                error('dimensions must match!');
+        end
+    end 
   end
+end 
 
-end
+
+
