@@ -24,7 +24,7 @@ w_z_ini = 0.0012; % orbital velocity in rad/s
 v_x_ini = 0.0;
 v_y_ini = 0.0;
 v_z_ini = 0.1;
-mc = 20;
+m = 20;
 alpha = pi/3;   %FOV
 
 %initial condition 
@@ -152,7 +152,7 @@ Fzmax = 0.3;
 %% Node distribution, Clenshaw Curtis weights and D matrix
 a = -1;
 b = 1;
-N = 70;
+N = 100;
 tk = (((b - a) / 2) .* cos(linspace(0, pi, N + 1)) + (b + a) / 2)';
 D = -Dmatrix_CGL(tk);
 w = flip(cc_quad_weights(N));
@@ -181,14 +181,18 @@ T = [T_x  T_y  T_z];%  angular velocity of body frame(b) w.r.t inertial frame ex
 F_q = quaternion(0,F);
 T_q = quaternion(0,T);
 F_dq = dualquaternion(F_q,T_q);
+J = [3.0514 0 0;0 2.6628 0; 0 0 2.1879]; % Inertia in Kgm^2
+% Dual Inertia matrix 8x8 
+J_dq = dualInertia(m,J);
 
 %% Decision Vector 
-DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)' F T];
+%DV = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)' F T];
 
 %% initial guess for decision vector - [qr_0(0)...qr_0(N) qr_1(0)...qr_1(N) qr_2(0)...qr_2(N)...qr_3(0)...qr_3(N) 
 % qd_0(0)     ...... Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
-%% TO DO : initial guess - 22xN
+%% TO DO : initial guess - Nx22?
+
 DV0 = awgn([],650);
 %DV0 = [xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess];
 
@@ -202,3 +206,9 @@ options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
 
 exitflag
 output
+
+function J_dq = dualInertia(m,J)
+% Dual inertia matrix. Assumes quaternion of the form [s;v]
+    J_dq = [zeros(4,4) [1 zeros(1,3); zeros(3,1) m*eye(3)]; ...
+           [1 zeros(1,3); zeros(3,1) J] zeros(4,4)];
+end
