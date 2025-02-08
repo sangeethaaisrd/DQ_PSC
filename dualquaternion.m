@@ -6,7 +6,7 @@ classdef dualquaternion
   end
 
   methods
-
+ 
     function dq = dualquaternion(qr,qd)
       % Constructor
       if nargin == 0

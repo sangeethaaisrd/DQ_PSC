@@ -2,7 +2,7 @@
 %%Rotation sequence - 3,2,1
 %% Using Lagrange ploynomial to approximate states and control 
 %% Collocation points are generated as the CGL nodes and clenshaw curtis weights are used for approximating the integration.
-clc; clear; close all;
+% clc; clear; close all;
 set(0, 'defaultFigureWindowState', 'maximized');
 set(0, 'defaultAxesFontSize', 20);
 set(0, 'defaultAxesLineWidth', 1.5);
@@ -149,6 +149,18 @@ Fymax = 0.3;
 Fzmin = -0.3;
 Fzmax = 0.3;
 
+Fmax = [Fxmax  Fymax  Fzmax ]; 
+Tmax = [Txmax  Tymax  Tzmax];
+F_qmax = quaternion(0,Fmax);
+T_qmax = quaternion(0,Tmax);
+F_dq_max = dualquaternion(F_qmax,T_qmax);
+
+Fmin = [Fxmin  Fymin  Fzmin ]; 
+Tmin = [Txmin  Tymin  Tzmin];
+F_qmin = quaternion(0,Fmin);
+T_qmin = quaternion(0,Tmin);
+F_dq_min = dualquaternion(F_qmin,T_qmin);
+
 %% Node distribution, Clenshaw Curtis weights and D matrix
 a = -1;
 b = 1;
@@ -161,9 +173,7 @@ tau = ((tau_f-tau0).*tk+(tau_f+tau0))./2;
 
 %% bounds
 
-lb = [w_dq_b_i_b_min.qr.s.*ones(N+1, 1)  (w_dq_b_i_b_min.qr.v)'.*ones(N+1, 1)  w_dq_b_i_b_min.qd.s*ones(N+1, 1) (w_dq_b_i_b_min.qd.v)'.*ones(N+1, 1)  q_dq_b_i_min.qr.s*ones(N+1, 1)  (q_dq_b_i_min.qr.v)'.*ones(N+1, 1)  q_dq_b_i_min.qd.s*ones(N+1, 1) (q_dq_b_i_min.qd.v)'.*ones(N+1, 1) ];
-ub = [w_dq_b_i_b_max.qr.s*ones(N+1, 1)  (w_dq_b_i_b_max.qr.v)'.*ones(N+1, 1)  w_dq_b_i_b_max.qd.s*ones(N+1, 1) (w_dq_b_i_b_max.qd.v)'.*ones(N+1, 1)  q_dq_b_i_max.qr.s*ones(N+1, 1)  (q_dq_b_i_max.qr.v)'.*ones(N+1, 1)  q_dq_b_i_max.qd.s*ones(N+1, 1) (q_dq_b_i_max.qd.v)'.*ones(N+1, 1) ];
-
+[ lb , ub ] = bounds(w_dq_b_i_b_min,w_dq_b_i_b_max,q_dq_b_i_min,q_dq_b_i_max,F_dq_max,F_dq_min,N);
 %% equality constraints and linear constraints
 A = []; B = []; Aeq = []; Beq = [];
 
@@ -193,16 +203,17 @@ J_dq = dualInertia(m,J);
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
 %% TO DO : initial guess - Nx22?
 
-DV0 = awgn([],650);
-%DV0 = [xguess; xdotguess; yguess; ydotguess; zguess; zdotguess; Txguess; Tyguess; Tzguess];
 
+
+DV0 = guess_DV(:,1)
+S_DV0 = size(DV0)
 %% Optimization options
 options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
 1e-4, 'ConstraintTolerance', 1e-1, 'MaxIterations', 2000,'MaxFunctionEvaluations',...
 500000,'Algorithm','sqp');
 
 [DV, costval, exitflag, output] = fmincon(@(DV)costfunc(DV, w, tau0, tau_f), DV0, A, B,...
-    Aeq, Beq, lb, ub, @(DV)nonlcon(DV, D, bc, w, tau0, tau_f, omega, mc, alpha),options);
+    Aeq, Beq, lb, ub, @(DV)nonlcon(DV, J_dq),options);
 
 exitflag
 output

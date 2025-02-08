@@ -15,6 +15,12 @@ v_z_ini = 0.1;
 mc = 20;
 alpha = pi/3;   %FOV
 
+%node distribution 
+a = -1;
+b = 1;
+N = 100;
+tk = (((b - a) / 2) .* cos(linspace(0, pi, N + 1)) + (b + a) / 2)';
+tau = ((tau_f-tau0).*tk+(tau_f+tau0))./2;
 %initial condition 
 
 w_b_i_b = [w_x_ini w_y_ini w_z_ini];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -59,8 +65,16 @@ q_dq_b_i_fin.qr = q_b_i_fin;
 r_b_fin = quaternion(0,[0 0 10]);% final translation distance along z axis is 10m
 q_dq_b_i_fin.qd =  0.5*q_dq_b_i_fin.qr*r_b_fin; % rotation first followed by translation
 
-w_q_b_i_b = quaternion(1,[2 3 4]);
-w_q_b_i_b_fin = quaternion(5,[6 7 8]);
+% w_q_b_i_b = quaternion(0,[0.1 0 0.001]);
+% w_q_b_i_b_fin = quaternion(0,[0 0.1 0.01]);
+
+
+load("guess.mat");
+
+Th = resample(Thrust, tau);
+Txguess = Th.Data(:, 1);
+Tyguess = Th.Data(:, 2);
+Tzguess = Th.Data(:, 3);
 
 i=1;
 %%
@@ -72,11 +86,25 @@ q_dq_b_i_guess(i,1) = dqinterp(t,q_dq_b_i,q_dq_b_i_fin);
 
 w_q_b_i_b_guess(i,1)= quat_interp(w_q_b_i_b,w_q_b_i_b_fin,t);
 v_q_b_i_b_guess(i,1) = quat_interp(v_q_b_i_b,v_q_b_i_b_fin,t);
+w_dq_b_i_b_guess(i,1) = dualquaternion(w_q_b_i_b_guess(i,1),v_q_b_i_b_guess(i,1))
+F_q_guess(i,1) = quaternion(0,[Th.Data(i, 1),Th.Data(i, 2),Th.Data(i, 3)]);
+T_q_guess(i,1) = quaternion();
+F_dq_guess(i,1) = dualquaternion(F_q_guess(i,1),T_q_guess(i,1));
 
+guess_1(i,:) = dq2vec(w_dq_b_i_b_guess(i,1));
+guess_2(i,:) = dq2vec(q_dq_b_i_guess(i,1));
+guess_3(i,:) = dq2vec(F_dq_guess(i,1));
 %F
 %T
 
 i=i+1;
 
 end
+guess_1 =guess_1(:);
+guess_2 =guess_2(:);
+guess_3 =guess_3(:);
+
+guess_DV= cat(1,guess_1,guess_2,guess_3);
+
+
 
