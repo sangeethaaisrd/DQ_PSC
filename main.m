@@ -80,7 +80,7 @@ q_dq_b_i_dot_fin = dualquaternion();
 
 % boundary condition
 
-bc = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'  w_dq_b_i_b_fin.qr.s  (w_dq_b_i_b_fin.qr.v)' w_dq_b_i_b_fin.qd.s (w_dq_b_i_b_fin.qd.v)' q_dq_b_i_fin.qr.s  (q_dq_b_i_fin.qr.v)' q_dq_b_i_fin.qd.s (q_dq_b_i_fin.qd.v)'];
+bc = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'  w_dq_b_i_b_fin.qr.s  (w_dq_b_i_b_fin.qr.v)' w_dq_b_i_b_fin.qd.s (w_dq_b_i_b_fin.qd.v)' q_dq_b_i_fin.qr.s  (q_dq_b_i_fin.qr.v)' q_dq_b_i_fin.qd.s (q_dq_b_i_fin.qd.v)']
 
 % bounds 
 
@@ -201,19 +201,19 @@ J_dq = dualInertia(m,J);
 %% initial guess for decision vector - [qr_0(0)...qr_0(N) qr_1(0)...qr_1(N) qr_2(0)...qr_2(N)...qr_3(0)...qr_3(N) 
 % qd_0(0)     ...... Ydot(0)...Ydot(N) Zdot(0)...Zdot(N) 
 % Tx(0)...Tx(N) Ty(0)...Ty(N) Tz(0)...Tz(N)]#
-%% TO DO : initial guess - Nx22?
+%% TO DO : initial guess - Nx24?
 
 
 
-DV0 = guess_DV(:,1)
-S_DV0 = size(DV0)
+DV0 = guess_DV(:,1);
+S_DV0 = size(DV0);
 %% Optimization options
 options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
 1e-4, 'ConstraintTolerance', 1e-1, 'MaxIterations', 2000,'MaxFunctionEvaluations',...
 500000,'Algorithm','sqp');
 
 [DV, costval, exitflag, output] = fmincon(@(DV)costfunc(DV, w, tau0, tau_f), DV0, A, B,...
-    Aeq, Beq, lb, ub, @(DV)nonlcon(DV, J_dq),options);
+    Aeq, Beq, lb, ub, @(DV)nonlcon(DV, J_dq,tau0,tau_f,D,bc),options);
 
 exitflag
 output

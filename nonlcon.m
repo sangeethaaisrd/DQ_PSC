@@ -1,8 +1,9 @@
  %% 6DOF rigid body dynamics equation in DQ form - constraint 
-function[c,ceq] = nonlcon(DV,J_dq)
+function[c,ceq] = nonlcon(DV,J_dq,tau0,tau_f,D,bc)
 
-%DV= ones(1,2424);
-N = (length(DV)-24)/24 % in this case N =100 
+DV =DV';
+
+N = (length(DV)-24)/24 ;% in this case N =100 
 
 w_dq_b_i_b.qr.s = DV(1:N+1);%1-101 % This will be all zero always 
 w_dq_b_i_b.qr.v(1,:) = DV(N+2:2*N+2); %102-202
@@ -47,23 +48,46 @@ F_dq.qd.v(3,:) = DV(23*N+24:24*N+24);%
 % 
 % A = cross((w_dq_b_i_b),J_dq*(w_dq_b_i_b));
 
-q_dq_b_i
-q_dq_b_i= dq_mat(q_dq_b_i)
-w_dq_b_i_b = dq_mat(w_dq_b_i_b)
-F_dq = dq_mat(F_dq)
-pdt = q_dq_b_i.*w_dq_b_i_b
-A = cross_times((w_dq_b_i_b),J_dq.*(w_dq_b_i_b))
-D = inv(J_dq).*(minus_times(F_dq,A))
 
-% q_dq_b_i_dot_con = (2/(tau_f-tau0)).*(D*q_dq_b_i-0.5*q_dq_b_i.*w_dq_b_i_b);% 100x8 
-% w_dq_b_i_b_dot_con = (2/(tau_f-tau0)).*(D*w_dq_b_i_b - inv(J_dq)*(F_dq - A));
+q_dq_b_i= dq_mat(q_dq_b_i);
+
+w_dq_b_i_b = dq_mat(w_dq_b_i_b);
+F_dq = dq_mat(F_dq);
+pdt = q_dq_b_i.*w_dq_b_i_b;
+size(pdt);
+pdt1 = 0.5*(dqarray_vec(pdt))';
+S_pdt1 = size(pdt1);
+A = cross_times((w_dq_b_i_b),J_dq.*(w_dq_b_i_b));
+Dy = inv(J_dq).*(minus_times(F_dq,A));
+Dy = dqarray_vec(Dy);
+s_Dy = size(Dy);
+q_dq_b_i =dqarray_vec(q_dq_b_i);
+w_dq_b_i_b =dqarray_vec(w_dq_b_i_b);
+
+A1 = (2/(tau_f-tau0)).*(D*q_dq_b_i'- pdt1);
+% size(q_dq_b_i_dot_con)
+% q_dq_b_i_dot_con = (2/(tau_f-tau0)).*(D*q_dq_b_i'-(0.5*q_dq_b_i.*w_dq_b_i_b)')% 100x8 
+% size(q_dq_b_i_dot_con)
+% q_dq_b_i_dot_con =  mat_dq(q_dq_b_i_dot_con');
+B1 = (2/(tau_f-tau0)).*(D*w_dq_b_i_b' - Dy');
 
 
+q_dq_b_i_dot_con.qr.s = A1(:,1);
+q_dq_b_i_dot_con.qr.v = A1(:,2:4);
+q_dq_b_i_dot_con.qd.s = A1(:,5);
+q_dq_b_i_dot_con.qd.v = A1(:,6:8);
 
-ceq = [q_dq_b_i_dot_con.qr.s;(w_dq_b_i_b_dot_con.qr.v)';q_dq_b_i_dot_con.qd.s,(w_dq_b_i_b_dot_con.qd.v)',w_dq_b_i_b.qr.s(1,1)-bc(1);w_dq_b_i_b.qr.v(1,1)-bc(2);w_dq_b_i_b.qr.v(2,1)-bc(3);w_dq_b_i_b.qr.v(3,1)-bc(4);q_dq_b_i.qr.s(1,1)-bc(5);q_dq_b_i.qr.v(1,1)-bc(6);q_dq_b_i.qr.v(2,1)-bc(7);q_dq_b_i.qr.v(3,1)-bc(8);norm(q_dq_b_i_dot_con.qr)-1; norm(w_dq_b_i_b_dot_con)-1;dot(q_dq_b_i_dot_con.qr,q_dq_b_i_dot_con.qd),dot(w_dq_b_i_b_dot_con.qr,w_dq_b_i_b_dot_con.qd)];
-c = [w_dq_b_i_b.qr.s(1,end)-bc(9); w_dq_b_i_b.qr.v(1,end)-bc(10);w_dq_b_i_b.qr.v(2,end)-bc(11);w_dq_b_i_b.qr.v(3,end)-bc(12);w_dq_b_i_b.qd.s(1,end)-bc(13);w_dq_b_i_b.qd.v(1,end)-bc(14);w_dq_b_i_b.qd.v(2,end)-bc(15);w_dq_b_i_b.qd.v(3,end)-bc(16)];
+w_dq_b_i_b_dot_con.qr.s = B1(:,1);
+w_dq_b_i_b_dot_con.qr.v = B1(:,2:4);
+w_dq_b_i_b_dot_con.qd.s = B1(:,5);
+w_dq_b_i_b_dot_con.qd.v = B1(:,6:8);
+% w_dq_b_i_b_dot_con =  mat_dq(w_dq_b_i_b_dot_con')
+
+% ceq = [q_dq_b_i_dot_con.qr.s(:,1);q_dq_b_i_dot_con.qr.v(:,1);q_dq_b_i_dot_con.qr.v(:,2),q_dq_b_i_dot_con.qr.v(:,3),q_dq_b_i_dot_con.qd.s(:,1);q_dq_b_i_dot_con.qd.v(:,1);q_dq_b_i_dot_con.qd.v(:,2),q_dq_b_i_dot_con.qd.v(:,3),w_dq_b_i_b_dot_con.qr.v(:,1);q_dq_b_i_dot_con.qd.s,(w_dq_b_i_b_dot_con.qd.v)',w_dq_b_i_b.qr.s(1,1)-bc(1);w_dq_b_i_b.qr.v(1,1)-bc(2);w_dq_b_i_b.qr.v(2,1)-bc(3);w_dq_b_i_b.qr.v(3,1)-bc(4);q_dq_b_i.qr.s(1,1)-bc(5);q_dq_b_i.qr.v(1,1)-bc(6);q_dq_b_i.qr.v(2,1)-bc(7);q_dq_b_i.qr.v(3,1)-bc(8);norm(q_dq_b_i_dot_con.qr)-1; norm(w_dq_b_i_b_dot_con)-1;dot(q_dq_b_i_dot_con.qr,q_dq_b_i_dot_con.qd),dot(w_dq_b_i_b_dot_con.qr,w_dq_b_i_b_dot_con.qd)];
+ ceq = [q_dq_b_i_dot_con.qr.s;q_dq_b_i_dot_con.qr.v(:,1);q_dq_b_i_dot_con.qr.v(:,2);q_dq_b_i_dot_con.qr.v(:,3);q_dq_b_i_dot_con.qd.s;q_dq_b_i_dot_con.qd.v(:,1);q_dq_b_i_dot_con.qd.v(:,2);q_dq_b_i_dot_con.qd.v(:,3);w_dq_b_i_b_dot_con.qr.s;w_dq_b_i_b_dot_con.qr.v(:,1);w_dq_b_i_b_dot_con.qr.v(:,2);w_dq_b_i_b_dot_con.qr.v(:,3);w_dq_b_i_b_dot_con.qd.s;w_dq_b_i_b_dot_con.qd.v(:,1);w_dq_b_i_b_dot_con.qd.v(:,2);w_dq_b_i_b_dot_con.qd.v(:,3);w_dq_b_i_b(1,1)-bc(1);w_dq_b_i_b(2,1)-bc(2);w_dq_b_i_b(3,1)-bc(3);w_dq_b_i_b(4,1)-bc(4);q_dq_b_i(1,1)-bc(5);q_dq_b_i(2,1)-bc(6);q_dq_b_i(3,1)-bc(7);q_dq_b_i(4,1)-bc(8);norm(q_dq_b_i_dot_con.qr)-1; norm(w_dq_b_i_b_dot_con)-1;dot(q_dq_b_i_dot_con.qr,q_dq_b_i_dot_con.qd),dot(w_dq_b_i_b_dot_con.qr,w_dq_b_i_b_dot_con.qd)];
+
+c = [w_dq_b_i_b.qr.s(end,1)-bc(9); w_dq_b_i_b.qr.v(end,1)-bc(10);w_dq_b_i_b.qr.v(end,2)-bc(11);w_dq_b_i_b.qr.v(end,3)-bc(12);w_dq_b_i_b.qd.s(end,1)-bc(13);w_dq_b_i_b.qd.v(end,1)-bc(14);w_dq_b_i_b.qd.v(end,2)-bc(15);w_dq_b_i_b.qd.v(end,3)-bc(16)];
 end
-
 
 
 
@@ -78,9 +102,29 @@ function dq = dq_mat(dq_struct)
    end
 end
 
+function dqvec_array = dqarray_vec(arr)
+
+   n = size(arr);
+   
+   for i=1:1:n(2)
+           dqvec_array(:,i) =  dq2vec(arr(1,i));
+   end
+end
+
 
 function J_dq = dualInertia(m,J)
 % Dual inertia matrix. Assumes quaternion of the form [s;v]
     J_dq = [zeros(4,4) [1 zeros(1,3); zeros(3,1) m*eye(3)]; ...
            [1 zeros(1,3); zeros(3,1) J] zeros(4,4)];
+end
+
+
+function dq_out = mat_dq(matrix)
+      % converting matrix to dq array
+      s = size(matrix);
+                for i = 1:1:s(2)
+                    quat_1(1,i) = quaternion(matrix(1,i),[matrix(2:4,i)]);
+                    quat_2(1,i) = quaternion(matrix(5,i),[matrix(6:8,i)]);
+                    dq_out(1,i) = dualquaternion();
+                end                
 end

@@ -221,6 +221,11 @@ classdef dualquaternion
                 error('dimensions must match!');
         end
     end 
+
+
+
+
+
   end
 end 
 
