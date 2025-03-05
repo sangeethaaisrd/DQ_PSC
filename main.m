@@ -20,41 +20,41 @@ tau0 = 0;
 tau_f = 650;%650; %10 minutes
 w_x_ini = 0;
 w_y_ini = 0;
-w_z_ini = 0.0012; % orbital velocity in rad/s 
+w_z_ini = 0.0; % orbital velocity in rad/s 
 v_x_ini = 0.0;
 v_y_ini = 0.0;
-v_z_ini = 0.1;
+v_z_ini = 0.0;% in m/s
 m = 20;
-alpha = pi/3;   %FOV
+
 
 %initial condition 
 
-w_b_i_b = [w_x_ini w_y_ini w_z_ini];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
-v_b_i_b = [v_x_ini v_y_ini v_z_ini];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
-w_q_b_i_b = quaternion(0,w_b_i_b);
-v_q_b_i_b = quaternion(0,v_b_i_b);
-w_dq_b_i_b = dualquaternion(w_q_b_i_b,v_q_b_i_b);
+w_b_i_b_ini = [w_x_ini w_y_ini w_z_ini];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+v_b_i_b_ini = [v_x_ini v_y_ini v_z_ini];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
+w_q_b_i_b_ini = quaternion(0,w_b_i_b_ini);
+v_q_b_i_b_ini = quaternion(0,v_b_i_b_ini);
+w_dq_b_i_b_ini = dualquaternion(w_q_b_i_b_ini,v_q_b_i_b_ini);
 
  
-q_b_i = quaternion(1,[0 0 0]); % initial quaternion of body frame w.r.t inertial frame
+q_b_i_ini = quaternion(1,[0 0 0]); % initial quaternion of body frame w.r.t inertial frame
 % q_b_i_conj = conj(q_b_i);
 
-q_dq_b_i = dualquaternion();
-q_dq_b_i.qr = q_b_i; 
-r_b = quaternion();
-q_dq_b_i.qd =  0.5*q_dq_b_i.qr*r_b; % rotation first followed by translation
+q_dq_b_i_ini = dualquaternion();
+q_dq_b_i_ini.qr = q_b_i_ini; 
+r_b_ini = quaternion(0,[0.05,0.05,-10.05]);
+q_dq_b_i_ini.qd =  0.5*q_dq_b_i_ini.qr*r_b_ini; % rotation first followed by translation
 
-w_dq_b_i_b_dot =dualquaternion();
-q_dq_b_i_dot = dualquaternion();
+w_dq_b_i_b_dot_ini =dualquaternion();
+q_dq_b_i_dot_ini = dualquaternion();
 
 %final condition
 
-w_x_fin = 0.01;
+w_x_fin = 0.0;
 w_y_fin = 0.0;
-w_z_fin = 0.0012; % orbital velocity in rad/s 
-v_x_fin = 0.0;
-v_y_fin = 0.0;
-v_z_fin = 0.05;
+w_z_fin = 0.0; % orbital velocity in rad/s 
+v_x_fin = 0.005;
+v_y_fin = 0.005;
+v_z_fin = 0.005;
 
 w_b_i_b_fin = [w_x_fin  w_y_fin  w_z_fin ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 v_b_i_b_fin = [v_x_fin  v_y_fin  v_z_fin ];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -63,12 +63,13 @@ v_q_b_i_b_fin = quaternion(0,v_b_i_b_fin);
 w_dq_b_i_b_fin = dualquaternion(w_q_b_i_b_fin,v_q_b_i_b_fin);
 
  
-q_b_i_fin = normalize(quaternion(-0.8733,[0 0 -0.4872])); % final quaternion of body frame w.r.t inertial frame
+q_b_i_fin = normalize(quaternion(0.7866,[0.4330 0.0795 -0.4330])); % final quaternion of body frame w.r.t inertial frame(-45,30,45)euler angle
+           
 % q_b_i_conj_fin = conj(q_b_i_fin);
 
 q_dq_b_i_fin = dualquaternion();
 q_dq_b_i_fin.qr = q_b_i_fin; 
-r_b_fin = quaternion(0,[0 0 10]);% final translation distance along z axis is 10m
+r_b_fin = quaternion(0,[0.02 0.02 -0.1]);% final translation distance along z axis is 10m
 q_dq_b_i_fin.qd =  0.5*q_dq_b_i_fin.qr*r_b_fin; % rotation first followed by translation
 
 
@@ -78,18 +79,26 @@ q_dq_b_i_dot_fin = dualquaternion();
 % boundary condition
 
 % bc = [w_dq_b_i_b.qr.s  (w_dq_b_i_b.qr.v)' w_dq_b_i_b.qd.s (w_dq_b_i_b.qd.v)' q_dq_b_i.qr.s  (q_dq_b_i.qr.v)' q_dq_b_i.qd.s (q_dq_b_i.qd.v)'  w_dq_b_i_b_fin.qr.s  (w_dq_b_i_b_fin.qr.v)' w_dq_b_i_b_fin.qd.s (w_dq_b_i_b_fin.qd.v)' q_dq_b_i_fin.qr.s  (q_dq_b_i_fin.qr.v)' q_dq_b_i_fin.qd.s (q_dq_b_i_fin.qd.v)'];
-bc =  cat(1,dq2vec(w_dq_b_i_b),dq2vec(q_dq_b_i),dq2vec(w_dq_b_i_b_fin),dq2vec(q_dq_b_i_fin));
+bc =  cat(1,dq2vec(w_dq_b_i_b_ini),dq2vec(q_dq_b_i_ini),dq2vec(w_dq_b_i_b_fin),dq2vec(q_dq_b_i_fin));
 
 % bounds 
 
 %minima
 
-w_x_min = -0.0872;
-w_y_min = -0.0872;
-w_z_min = -0.0872; % orbital velocity in rad/s 
-v_x_min = -5; %in m/s
-v_y_min = -5;
-v_z_min = -5;
+% w_x_min = -0.0872;
+% w_y_min = -0.0872;
+% w_z_min = -0.0872; % orbital velocity in rad/s 
+% v_x_min = -5; %in m/s
+% v_y_min = -5;
+% v_z_min = -5;
+
+w_x_min = -inf;
+w_y_min = -inf;
+w_z_min = -inf; % orbital velocity in rad/s 
+v_x_min = -inf; %in m/s
+v_y_min = -inf;
+v_z_min = -inf;
+
 
 w_b_i_b_min = [w_x_min  w_y_min  w_z_min ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 v_b_i_b_min = [v_x_min  v_y_min  v_z_min ];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -98,22 +107,29 @@ v_q_b_i_b_min = quaternion(0,v_b_i_b_min);
 w_dq_b_i_b_min = dualquaternion(w_q_b_i_b_min,v_q_b_i_b_min);
 
  
-q_b_i_min = quaternion(1,[0 0 0]); % Query : How to fix this ?
+q_b_i_min = quaternion(0.7325,[-0.4619 -0.1913  -0.4619]); %euler angle = -45 in all axes 
+        
 % q_b_i_conj_min = conj(q_b_i_min);
 
 q_dq_b_i_min = dualquaternion();
 q_dq_b_i_min.qr = q_b_i_min; 
-r_b_min = quaternion(1,[0 0 0]);
+r_b_min = quaternion(0,[0,0,-65]);
 q_dq_b_i_min.qd =  0.5*q_dq_b_i_min.qr*r_b_min; % rotation first followed by translation
 
 %maxima
 
-w_x_max = 0.0872;
-w_y_max = 0.0872;
-w_z_max = 0.0872; % orbital velocity in rad/s 
-v_x_max = 5;
-v_y_max = 5;
-v_z_max = 5;
+% w_x_max = 0.0872;
+% w_y_max = 0.0872;
+% w_z_max = 0.0872; % orbital velocity in rad/s 
+% v_x_max = 5;
+% v_y_max = 5;
+% v_z_max = 5;
+w_x_max = inf;
+w_y_max = inf;
+w_z_max = inf; % orbital velocity in rad/s 
+v_x_max = inf;
+v_y_max = inf;
+v_z_max = inf;
 
 w_b_i_b_max = [w_x_max  w_y_max  w_z_max ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 v_b_i_b_max = [v_x_max  v_y_max  v_z_max ];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -122,12 +138,12 @@ v_q_b_i_b_max = quaternion(0,v_b_i_b_max);
 w_dq_b_i_b_max = dualquaternion(w_q_b_i_b_max,v_q_b_i_b_max);
 
  
-q_b_i_max = quaternion(1,[0 0 0]); %Query : How to fix this ?
-
+q_b_i_max = quaternion(0.8446,[0.1913 0.4619  0.1913]); %+45 in all axes - implies bounds is between -45 and +45
+           
 
 q_dq_b_i_max = dualquaternion();
 q_dq_b_i_max.qr = q_b_i_max; 
-r_b_max = quaternion(1,[0 0 10]);
+r_b_max = quaternion(0,[0 0 65]);
 q_dq_b_i_max.qd =  0.5*q_dq_b_i_max.qr*r_b_max; % rotation first followed by translation
 
 %% min and max of effort values 
@@ -162,7 +178,7 @@ F_dq_min = dualquaternion(F_qmin,T_qmin);
 %% Node distribution, Clenshaw Curtis weights and D matrix
 a = -1;
 b = 1;
-N = 100;
+N = 40;
 tk = (((b - a) / 2) .* cos(linspace(0, pi, N + 1)) + (b + a) / 2)';
 D = -Dmatrix_CGL(tk);
 w = flip(cc_quad_weights(N));
@@ -179,10 +195,10 @@ A = []; B = []; Aeq = []; Beq = [];
 %% Wrench in DQ form 
 F_x = 0;
 F_y = 0;
-F_z = 0;
+F_z = 0.0;
 T_x = 0;
 T_y = 0;
-T_z = 0;
+T_z = 0.0;
 
 F = [F_x  F_y  F_z ];  %  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
 T = [T_x  T_y  T_z];%  angular velocity of body frame(b) w.r.t inertial frame expressed in body frame(b)
@@ -207,8 +223,11 @@ DV0 = guess_DV(:,1);
 S_DV0 = size(DV0);
 %% Optimization options
 options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
-1e-4, 'ConstraintTolerance', 1e-1, 'MaxIterations', 2000,'MaxFunctionEvaluations',...
-500000,'Algorithm','sqp');
+1e-2, 'ConstraintTolerance', 1, 'MaxIterations', 2000,'MaxFunctionEvaluations',...
+500000,'Algorithm','sqp',"EnableFeasibilityMode",true);
+% options =  optimoptions ('fmincon','Display','Iter','OptimalityTolerance',...
+% 1e-1, 'ConstraintTolerance', 1, 'MaxIterations', 2000,'MaxFunctionEvaluations',...
+% 500000,'Algorithm','sqp');
 
 [DV, costval, exitflag, output] = fmincon(@(DV)costfunc(DV, w, tau0, tau_f), DV0, A, B,...
     Aeq, Beq, lb, ub, @(DV)nonlcon(DV, J_dq,tau0,tau_f,D,bc),options);
